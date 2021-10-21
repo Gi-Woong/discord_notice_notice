@@ -3,7 +3,6 @@ import json
 import feedparser
 import datetime as dt
 import os, sys
-#<------FUNCTION------>
 
 #말그대로 rss를 파싱해주는 것
 def RSS_PARSE():
@@ -61,7 +60,7 @@ def POST_rss(rss, webhook_url):
       }
     ]
   }
-  REQUEST_POST(data, webhook_url)#포스트 리퀘스트 보내기
+  REQUEST_POST(data, webhook_url)# post request
 
   
 
