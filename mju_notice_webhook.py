@@ -30,10 +30,6 @@ def RSS_CONTENT(rss):
   date = ':'.join(published.split(":")[:-1])
   kor_date=dt.datetime.strptime(date,"%Y-%m-%d %H:%M")-dt.timedelta(hours=9)#디스코드가 GMT를 사용해서 그만큼 빼줘야 함.
   kor_date=str(kor_date)
-  print(kor_date)
-  
-  #content = title+"\n"+description+"\n"+link+"\n"+date
-  #print(title, "\n", description, "\n", link, "\n", ':'.join(date.split(":")[:-1]))
   return title, description, link, kor_date
 
 #포스트 리퀘스트를 보내기
