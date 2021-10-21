@@ -1,2 +1,3 @@
-# discord_notice_notice
-Notice mju notice
+# DISCORD_NOTICE
+---
+notice to discord when "일반공지" is updated.
