@@ -2,7 +2,8 @@ import requests
 import json
 import feedparser
 import datetime as dt
-import os, sys
+import os, sys, re
+
 
 #말그대로 rss를 파싱해주는 것
 def RSS_PARSE():
@@ -10,14 +11,23 @@ def RSS_PARSE():
   rss = parsed_rss.entries
   return rss
 
+
 #content를 받고 정리해서 돌려줌
 def RSS_CONTENT(rss): 
-  title = "{}".format(str(rss.title))
+  print(rss)
+  title = rss.title
 
   #요약 및 두괄식
   summary=str(rss.description).split(".",maxsplit=1)[0]
   first_sen=str(rss.description).split("다.",maxsplit=1)[0]
-  if len(summary)<=4:
+  #링크 추출
+  r_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+  desc_url = re.search(r_regex, rss.description)
+
+  if desc_url:
+    desc_url = desc_url.group()
+    description = rss.description.split(desc_url,1)[0] + desc_url
+  elif len(summary)<=4:
     description=""
   elif len(first_sen)>50:
     description =summary[:50]+"⋯"
@@ -32,12 +42,6 @@ def RSS_CONTENT(rss):
   kor_date=str(kor_date)
   return title, description, link, kor_date
 
-#포스트 리퀘스트를 보내기
-def REQUEST_POST(data, webhook_url):
-  r=requests.post(
-    webhook_url,
-    data=json.dumps(data),
-    headers={'Content-Type' : 'application/json'})
 
 #공지형식의 임베드 구조 만들고 포스트 하기
 def POST_rss(rss, webhook_url):
@@ -59,8 +63,14 @@ def POST_rss(rss, webhook_url):
       }
     ]
   }
-  REQUEST_POST(data, webhook_url)# post request
+  print(data)
+  #post request
+  requests.post(
+    webhook_url,
+    data=json.dumps(data),
+    headers={'Content-Type' : 'application/json'})
 
+  
 def main():
   recent_path = "./recent.json"
   rsss = RSS_PARSE()
@@ -74,9 +84,13 @@ def main():
           POST_rss(rss, webhook_url)
         else:
           break
+    else:
+      POST_rss(rsss[0], webhook_url)
+
   with open(recent_path, "w", encoding="utf-8") as w:
     w.write(json.dumps(rsss[0]))
     w.close()
 
+    
 if __name__ == '__main__':
     main()
