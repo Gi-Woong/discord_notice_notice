@@ -7,7 +7,7 @@ import os, sys
 #말그대로 rss를 파싱해주는 것
 def RSS_PARSE():
   parsed_rss = feedparser.parse('https://www.mju.ac.kr/bbs/mjukr/141/rssList.do')
-  rss = parsed_rss.entries[0]
+  rss = parsed_rss.entries
   return rss
 
 #content를 받고 정리해서 돌려줌
@@ -34,7 +34,10 @@ def RSS_CONTENT(rss):
 
 #포스트 리퀘스트를 보내기
 def REQUEST_POST(data, webhook_url):
-  r=requests.post(webhook_url, data = json.dumps(data), headers={'Content-Type' : 'application/json'})
+  r=requests.post(
+    webhook_url,
+    data=json.dumps(data),
+    headers={'Content-Type' : 'application/json'})
 
 #공지형식의 임베드 구조 만들고 포스트 하기
 def POST_rss(rss, webhook_url):
@@ -58,29 +61,22 @@ def POST_rss(rss, webhook_url):
   }
   REQUEST_POST(data, webhook_url)# post request
 
-  
-
-def main(argv):
-  webhook_url = argv
-  rss = RSS_PARSE()
+def main():
   recent_path = "./recent.json"
-  POST_rss(rss, webhook_url)
-  if os.path.isfile(recent_path):
-    recent = open(recent_path, "r", encoding="utf-8").readlines()
-    recent = json.loads("\n".join(recent))
-    #제목과 summary가 다르면 webhook에 보내기
-    if recent["title"] != rss["title"] or recent["summary"] != rss["summary"]:
-      POST_rss(rss, webhook_url)
-      with open(recent_path, "w", encoding="utf-8") as w:
-        w.write(json.dumps(rss))
-        w.close()
-  else:
-    with open(recent_path, "w", encoding="utf-8") as w:
-      w.write(json.dumps(rss))
-      w.close()
+  rsss = RSS_PARSE()
+  for webhook_url in sys.argv[1:]:
+    if os.path.isfile(recent_path):
+      recent = open(recent_path, "r", encoding="utf-8").readlines()
+      recent = json.loads("\n".join(recent))
+      #제목과 summary가 다르면 webhook에 보내기
+      for rss in rsss:
+        if recent["title"] != rss["title"] or recent["summary"] != rss["summary"]:
+          POST_rss(rss, webhook_url)
+        else:
+          break
+  with open(recent_path, "w", encoding="utf-8") as w:
+    w.write(json.dumps(rsss[0]))
+    w.close()
 
-  
 if __name__ == '__main__':
-  for argv in sys.argv[1:]:
-    main(argv)
-
+    main()
