@@ -5,6 +5,7 @@ import datetime as dt
 import os, sys, re
 
 
+
 #말그대로 rss를 파싱해주는 것
 def RSS_PARSE():
   parsed_rss = feedparser.parse('https://www.mju.ac.kr/bbs/mjukr/141/rssList.do')
@@ -63,11 +64,18 @@ def POST_rss(rss, webhook_url):
       }
     ]
   }
+<<<<<<< HEAD
   print(data)
   #post request
   requests.post(
     webhook_url,
     data=json.dumps(data),
+=======
+  #post request
+  requests.post(
+    webhook_url,
+    data=json.dumps(rss),
+>>>>>>> ddfc4cf92c73ef5bfaef9d091dab44da112c7fd3
     headers={'Content-Type' : 'application/json'})
 
   
