@@ -64,6 +64,7 @@ def main(argv):
   webhook_url = argv
   rss = RSS_PARSE()
   recent_path = "./recent.json"
+  POST_rss(rss, webhook_url)
   if os.path.isfile(recent_path):
     recent = open(recent_path, "r", encoding="utf-8").readlines()
     recent = json.loads("\n".join(recent))
