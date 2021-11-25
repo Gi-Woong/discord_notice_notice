@@ -25,16 +25,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: mju_notice_webhook.py
+    - name: Run mju_notice_webhook.py
       run: |
         python mju_notice_webhook.py $URL
       env:
         MY_GITHUB_TOKEN: \$
-    - name: update repository
+    - name: Commit files
+      env: 
+        MY_EMAIL: ${{ secrets.MY_EMAIL }}
       run: |
-        git remote set-rul origin ${{ sercret.ssh }}
-        git add recent.json
-        git commit -m "auto updated"
-        git fetch origin master
-        git push origin HEAD:master
-
+        git config --local user.email $MY_EMAIL
+        git config --local user.name "dipito"
+        git add "recent.json"
+        git commit -m "automatically updated"
+    - name: Update repository(Push)
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
