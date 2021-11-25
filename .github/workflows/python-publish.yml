@@ -30,4 +30,11 @@ jobs:
         python mju_notice_webhook.py $URL
       env:
         MY_GITHUB_TOKEN: \$
+    - name: update repository
+      run: |
+        git remote set-rul origin ${{ sercret.ssh }}
+        git add recent.json
+        git commit -m "auto updated"
+        git fetch origin master
+        git push origin HEAD:master
 
