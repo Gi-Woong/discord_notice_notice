@@ -111,13 +111,5 @@ def main():
   else:
     print("Nothing was written.")
 
-#test용
-def main2():
-  recent_path = "./recent.json"
-  rsss = RSS_PARSE()[3]
-  with open(recent_path, "w", encoding="utf-8") as w:
-    w.write(json.dumps(rsss))
-    w.close()
-
 if __name__ == '__main__':
     main()
