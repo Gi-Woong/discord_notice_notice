@@ -7,7 +7,7 @@ import os, sys, re
 
 
 #말그대로 rss를 파싱해주는 것
-def RSS_PARSE():
+def RSS_PARSE() -> list:
   parsed_rss = feedparser.parse('https://www.mju.ac.kr/bbs/mjukr/141/rssList.do')
   rss = parsed_rss.entries
   return rss
@@ -71,27 +71,53 @@ def POST_rss(rss, webhook_url):
     data=json.dumps(data),
     headers={'Content-Type' : 'application/json'})
 
+#rsss는 rss들(복수 s)라는 뜻이다.
   
 def main():
   recent_path = "./recent.json"
-  rsss = RSS_PARSE()
-  for webhook_url in sys.argv[1:]:
-    if os.path.isfile(recent_path):
-      recent = open(recent_path, "r", encoding="utf-8").readlines()
-      recent = json.loads("\n".join(recent))
-      #제목과 summary가 다르면 webhook에 보내기
-      for rss in rsss:
-        if recent["title"] != rss["title"] or recent["summary"] != rss["summary"]:
-          POST_rss(rss, webhook_url)
-        else:
-          break
-    else:
-      POST_rss(rsss[0], webhook_url)
+  rsss = RSS_PARSE()[::-1] # parse 결과를 reverse하여 rsss에 대입
+  if os.path.isfile(recent_path):
+    recent = open(recent_path, "r", encoding="utf-8").readlines()
+    recent = json.loads("\n".join(recent))
 
+    print("before rsss length:", len(rsss))
+    
+    #제목과 summary가 같으면 rsss 업데이트 후 break
+    for i, rss in enumerate(rsss[:]):
+      if recent["title"] == rss["title"] and recent["summary"] == rss["summary"]:
+        rsss = rsss[i+1:]
+        print("break")
+        break
+  else:
+    rsss = [rsss[-1]]
+  
+  #확인용 출력
+  print("after rsss length:", len(rsss))
+  if len(rsss):
+    print("rsss[-1]:", rsss[-1])
+  else:
+    print("There is nothing to send.")
+
+  #웹후크 주소로 보내기
+  for webhook_url in sys.argv[1:]:
+    for rss in rsss:
+      POST_rss(rss, webhook_url)
+
+  #rsss가 비어있지 않아야만 파일을 새로 씀.
+  if len(rsss) > 0:
+    with open(recent_path, "w", encoding="utf-8") as w:
+      w.write(json.dumps(rsss[-1]))
+      w.close()
+  else:
+    print("Nothing was written.")
+
+#test용
+def main2():
+  recent_path = "./recent.json"
+  rsss = RSS_PARSE()[3]
   with open(recent_path, "w", encoding="utf-8") as w:
-    w.write(json.dumps(rsss[0]))
+    w.write(json.dumps(rsss))
     w.close()
 
-    
 if __name__ == '__main__':
     main()
