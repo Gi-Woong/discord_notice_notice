@@ -38,6 +38,7 @@ jobs:
       run: |
         git config --local user.email $MY_EMAIL
         git config --local user.name "dipito"
+        git pull
         git add "recent.json"
         git commit -m "automatically updated" || echo failed
     - name: Update repository(Push)
