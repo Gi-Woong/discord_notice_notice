@@ -5,7 +5,6 @@ import datetime as dt
 import os, sys, re
 
 
-
 #말그대로 rss를 파싱해주는 것
 def RSS_PARSE() -> list:
   parsed_rss = feedparser.parse('https://www.mju.ac.kr/bbs/mjukr/141/rssList.do')
@@ -15,7 +14,7 @@ def RSS_PARSE() -> list:
 
 #content를 받고 정리해서 돌려줌
 def RSS_CONTENT(rss): 
-  print(rss)
+  #print(rss)
   title = rss.title
 
   #요약 및 두괄식
@@ -64,7 +63,7 @@ def POST_rss(rss, webhook_url):
       }
     ]
   }
-  print(data)
+
   #post request
   requests.post(
     webhook_url,
@@ -75,41 +74,61 @@ def POST_rss(rss, webhook_url):
   
 def main():
   recent_path = "./recent.json"
-  rsss = RSS_PARSE()[::-1] # parse 결과를 reverse하여 rsss에 대입
+  
+  rsss = RSS_PARSE()
+  beforersss = rsss
+  beforelen = len(rsss)
+  print("before rsss length:", beforelen) 
+  
   if os.path.isfile(recent_path):
     recent = open(recent_path, "r", encoding="utf-8").readlines()
-    recent = json.loads("\n".join(recent))
+    try: recent = json.loads("\n".join(recent))
+    except Exception as e: return print(f"JSON Loading Error:\n{e}")
 
-    print("before rsss length:", len(rsss))
-    
     #제목과 summary가 같으면 rsss 업데이트 후 break
-    for i, rss in enumerate(rsss[:]):
+    for i, rss in enumerate(rsss): 
       if recent["title"] == rss["title"] and recent["summary"] == rss["summary"]:
-        rsss = rsss[i+1:]
+        if i == 0: rsss = []
+        else: rsss = rsss[i-1::-1]
+        print("'i' when for ended':", i)
         print("break")
         break
   else:
-    rsss = [rsss[-1]]
+    rsss = [rsss[0]]
   
   #확인용 출력
   print("after rsss length:", len(rsss))
-  if len(rsss):
-    print("rsss[-1]:", rsss[-1])
-  else:
-    print("There is nothing to send.")
+  
+  #정상적으로 필터링이 된 경우
+  if len(rsss) > 0 and len(rsss) < beforelen:
+    #확인용 출력
+    print("rsss[0]['title']:", rsss[0]['title'])
+    print("rsss[0]['summary']:", rsss[0]['summary'])
+    #웹후크 주소로 보내기
+    for webhook_url in sys.argv[1:]:
+      for rss in rsss:
+        POST_rss(rss, webhook_url)
 
-  #웹후크 주소로 보내기
-  for webhook_url in sys.argv[1:]:
-    for rss in rsss:
-      POST_rss(rss, webhook_url)
+  elif len(rsss) == 0:
+    print("There is nothing to send.")
+  
+  #정상적으로 필터링이 안된경우
+  elif beforelen <= len(rsss): 
+    print("Error but pass over: recent.json과 동일한 내용의 rss가 포착되지 않았습니다. ")
+    rsss = beforersss[0]
+  
+  else:
+    print("Unknown Error")
+    return #프로그램 종료
 
   #rsss가 비어있지 않아야만 파일을 새로 씀.
   if len(rsss) > 0:
     with open(recent_path, "w", encoding="utf-8") as w:
-      w.write(json.dumps(rsss[-1]))
+      w.write(json.dumps(rsss[0]))
       w.close()
   else:
     print("Nothing was written.")
+    
 
 if __name__ == '__main__':
     main()
