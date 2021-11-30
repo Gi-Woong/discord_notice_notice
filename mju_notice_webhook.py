@@ -94,11 +94,11 @@ def main():
         print("break")
         break
   else:
-    rsss = [rsss[0]]
+    rsss = (rsss[0],)
+  
   
   #확인용 출력
   print("after rsss length:", len(rsss))
-  
   #정상적으로 필터링이 된 경우
   if len(rsss) > 0 and len(rsss) < beforelen:
     #확인용 출력
@@ -113,9 +113,9 @@ def main():
     print("There is nothing to send.")
   
   #정상적으로 필터링이 안된경우
-  elif beforelen <= len(rsss): 
+  if beforelen <= len(rsss): 
     print("Error but pass over: recent.json과 동일한 내용의 rss가 포착되지 않았습니다. ")
-    rsss = beforersss[0]
+    rsss = (beforersss[0],)
   
   else:
     print("Unknown Error")
