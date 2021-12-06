@@ -52,7 +52,7 @@ def POST_rss(rss, webhook_url):
       {
         "title" : title,
         "description" : description,
-        "url" : link + "layout=unknown",
+        "url" : link + "?layout=unknown",
         "color" : "598634",
         "author" : {
           "name" : "일반공지",
