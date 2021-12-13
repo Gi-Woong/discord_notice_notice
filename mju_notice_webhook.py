@@ -124,7 +124,7 @@ def main():
   #rsss가 비어있지 않아야만 파일을 새로 씀.
   if len(rsss) > 0:
     with open(recent_path, "w", encoding="utf-8") as w:
-      w.write(json.dumps(rsss[0]))
+      w.write(json.dumps(rsss[-1]))
       w.close()
   else:
     print("Nothing was written.")
