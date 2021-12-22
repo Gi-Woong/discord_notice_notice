@@ -115,7 +115,8 @@ def main():
   #정상적으로 필터링이 안된경우
   elif beforelen <= len(rsss): 
     print("Error but pass over: recent.json과 동일한 내용의 rss가 포착되지 않았습니다. ")
-    rsss = (beforersss[0],)
+    rsss = tuple()
+    #rsss = (beforersss[0],)
   
   else:
     print("Unknown Error")
