@@ -14,7 +14,6 @@ def RSS_PARSE() -> list:
 
 #content를 받고 정리해서 돌려줌
 def RSS_CONTENT(rss): 
-  #print(rss)
   title = rss.title
 
   #요약 및 두괄식
@@ -76,7 +75,6 @@ def main():
   recent_path = "./recent.json"
   
   rsss = RSS_PARSE()
-  beforersss = rsss
   beforelen = len(rsss)
   print("before rsss length:", beforelen) 
   
@@ -84,10 +82,10 @@ def main():
     recent = open(recent_path, "r", encoding="utf-8").readlines()
     try: recent = json.loads("\n".join(recent))
     except Exception as e: return print(f"JSON Loading Error:\n{e}")
-
-    #제목과 summary가 같으면 rsss 업데이트 후 break
+    print("recent title:", recent["title"])
+    #제목(과 summary가)이 같으면 rsss 업데이트 후 break
     for i, rss in enumerate(rsss): 
-      if recent["title"] == rss["title"] and recent["summary"] == rss["summary"]:
+      if recent["title"] == rss["title"]: #and recent["summary"] == rss["summary"]:
         if i == 0: rsss = []
         else: rsss = rsss[i-1::-1]
         print("'i' when for ended':", i)
