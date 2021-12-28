@@ -83,9 +83,9 @@ def main():
     try: recent = json.loads("\n".join(recent))
     except Exception as e: return print(f"JSON Loading Error:\n{e}")
     print("recent title:", recent["title"])
-    #제목(과 summary가)이 같으면 rsss 업데이트 후 break
+    #링크가 같으면 rsss 업데이트 후 break
     for i, rss in enumerate(rsss): 
-      if recent["title"] == rss["title"]: #and recent["summary"] == rss["summary"]:
+      if recent["link"] == rss["link"]: #and recent["summary"] == rss["summary"]:
         if i == 0: rsss = []
         else: rsss = rsss[i-1::-1]
         print("'i' when for ended':", i)
@@ -101,6 +101,7 @@ def main():
   if len(rsss) > 0 and len(rsss) < beforelen:
     #확인용 출력
     print("rsss[0]['title']:", rsss[0]['title'])
+    print("rsss[0]['link']:", rsss[0]['link'])
     print("rsss[0]['summary']:", rsss[0]['summary'])
     #웹후크 주소로 보내기
     for webhook_url in sys.argv[1:]:
